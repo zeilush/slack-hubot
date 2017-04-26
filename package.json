@@ -5,7 +5,7 @@
   "author": "Sebastian.Abele <sebastian.abele@wolterskluwer.com>",
   "description": "A simple helpful robot for your Company",
   "scripts": {
-    "start": "setx HUBOT_SLACK_TOKEN xoxb-171228128566-0GHGlMhEXvOpu5KmtdS2OyPv && .\\bin\\hubot --adapter slack"
+    "start": ".\\bin\\hubot --adapter slack"
   },
   "dependencies": {
     "@slack/client": "^3.9.0",
