@@ -1,19 +1,27 @@
 urlStorage = {
   google: 'http://www.google.de',
-  petshop: 'https://slack-it-petclinic.herokuapp.com/'
+  petclinic: 'https://slack-it-petclinic.herokuapp.com/'
 }
 
 module.exports = (robot) ->
-  robot.hear /is alive (.*)/i, (res) ->
-    selector = res.match[1]
+  robot.respond /is alive(.*)?/i, (res) ->
+    selector
+
+    if res.match[1]
+      selector = res.match[1].replace(' ','')
 
     if urlStorage.hasOwnProperty(selector)
       res.http(urlStorage[selector])
       .get() (err, serverRes, body) ->
         if serverRes.statusCode isnt 200
-          res.send "Request didn't come back HTTP 200 :("
+          res.reply "Request didn't come back HTTP 200 :("
           return
 
-        res.send "Yolo " + urlStorage[selector]
+        res.reply "It's alive " + urlStorage[selector]
     else
-      res.send "wrong selector :("
+      selectors = ''
+      for prop of urlStorage
+        if urlStorage.hasOwnProperty(prop)
+          selectors +=  ( prop + ' ' )
+
+      res.reply "Didn't recognize the selector, please use one of the following: #{selectors}"

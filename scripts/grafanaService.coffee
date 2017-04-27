@@ -45,8 +45,8 @@ slackClient = require '@slack/client'
 
 module.exports = (robot) ->
   # Various configuration options stored in environment variables
-  grafana_host = process.env.HUBOT_GRAFANA_HOST || 'https://petclinic.grafana.net'
-  grafana_api_key = process.env.HUBOT_GRAFANA_API_KEY || 'eyJrIjoiYUVBMzRNOWNPc3NWUUI2RE4wa3Zjak9kUERhVWRQTDMiLCJuIjoiemVpbHVzaCIsImlkIjoxfQ=='
+  grafana_host = 'https://petclinic.grafana.net'
+  grafana_api_key = 'eyJrIjoiempzaXBqYjJFV1paWnBjMldrdGFjVmVYRElxZ1RBQnYiLCJuIjoiYm90IiwiaWQiOjF9'
   grafana_query_time_range = process.env.HUBOT_GRAFANA_QUERY_TIME_RANGE or '6h'
   s3_endpoint = process.env.HUBOT_GRAFANA_S3_ENDPOINT or 's3.amazonaws.com'
   s3_bucket = process.env.HUBOT_GRAFANA_S3_BUCKET
@@ -145,6 +145,8 @@ module.exports = (robot) ->
 
       # Return dashboard rows
       panelNumber = 0
+      
+      msg.send "Please wait while i get the stats for you"
       for row in data.rows
         for panel in row.panels
           robot.logger.debug panel
@@ -179,7 +181,6 @@ module.exports = (robot) ->
 
   # Get a list of available dashboards
   robot.respond /(?:grafana|graph|graf) list\s?(.+)?/i, (msg) ->
-    console.log('yolo')
     if msg.match[1]
       tag = msg.match[1].trim()
       callGrafana "search?tag=#{tag}", (dashboards) ->
@@ -295,11 +296,7 @@ module.exports = (robot) ->
         requestHeaders =
           encoding: null
 
-    randomName = Date.now() + Math.floor(Math.random() * 100)
-    filePath = path.join(process.cwd(), "/tmp/#{randomName}")
-
     request url, requestHeaders, (err, res, body) ->
-      console.log('writing image...')
 
       slackChannels = msg.message.room || msg.user.name || '#general'
 
@@ -319,80 +316,9 @@ module.exports = (robot) ->
       slack.files.upload title, opts, (err, res) ->
         if err
           robot.logger.error "Upload Error Code: #{err}"
-          msg.send "#{title} - [Upload Error] with options #{opts}"
+          #msg.send "#{title} - [Upload Error] with options #{opts}"
         else
           robot.logger.debug "Image uploaded with options: #{opts}"
-          fs.unlink(filePath)
-      ###fs.writeFile(filePath, body, (err) -> 
-        if err 
-          throw err;
-        console.log('uploading image...')
-        uploadToSlack(msg, title, filePath)
-      )###
-
-    ###request url, requestHeaders, (err, res, body) ->
-      robot.logger.debug "Save files to local before uploading..."
-      console.log(url, body)
-      writeFile = fs.createWriteStream(filePath)
-      writeFile.write(body)
-      writeFile.end()
-      
-
-      robot.logger.debug "Upload #{filePath} to Slack..."
-      uploadToSlack(msg, title, filePath)
-
-      robot.logger.debug "Remove saved files for upload."###
-      
-
-  # Upload image to Slack
-  uploadToSlack = (msg, title, filePath) ->
-    console.log('XXXX')
-    slackChannels = msg.message.room || msg.user.name || '#general'
-
-    slack = new slackClient.WebClient(slack_token)
-
-    ###opts = {
-      title: title,
-      channels: slackChannels,
-      file: fs.createReadStream(filePath)
-    }###
-
-    opts = {
-      title: title,
-      channels: slackChannels,
-      file: fs.createReadStream(filePath)
-    }
-
-    slack.files.upload title, opts, (err, res) ->
-      if err
-        robot.logger.error "Upload Error Code: #{err}"
-        msg.send "#{title} - [Upload Error] with options #{opts}"
-      else
-        robot.logger.debug "Image uploaded with options: #{opts}"
-        fs.unlink(filePath)
-
-    ###fs.readFile(filePath, 'utf8', (err, data) ->
-      if err 
-        throw err;
-
-      opts.file = data
-      console.log(data, opts.file, fs.createReadStream(filePath))
-      slack.files.upload title, opts, (err, res) ->
-        if err
-          robot.logger.error "Upload Error Code: #{err}"
-          msg.send "#{title} - [Upload Error] with options #{opts}"
-        else
-          robot.logger.debug "Image uploaded with options: #{opts}"
-          fs.unlink(filePath)
-    )###
-
-    ###slack.files.upload title, opts, (err, res) ->
-      if err
-        robot.logger.error "Upload Error Code: #{err}"
-        msg.send "#{title} - [Upload Error] with options #{opts}"
-      else
-        robot.logger.debug "Image uploaded with options: #{opts}"
-        fs.unlink(filePath)###
 
   # Fetch an image from provided URL, upload it to S3, returning the resulting URL
   fetchAndUpload = (msg, title, url, link) ->
