@@ -46,7 +46,7 @@ slackClient = require '@slack/client'
 module.exports = (robot) ->
   # Various configuration options stored in environment variables
   grafana_host = 'https://petclinic.grafana.net'
-  grafana_api_key = 'eyJrIjoiempzaXBqYjJFV1paWnBjMldrdGFjVmVYRElxZ1RBQnYiLCJuIjoiYm90IiwiaWQiOjF9'
+  grafana_api_key = 'eyJrIjoiSTVjdmRIVkNaWHU2T2pyMEJRd1VUaGw1Mlcxc3U0eEIiLCJuIjoiaHVib3QiLCJpZCI6MX0='
   grafana_query_time_range = process.env.HUBOT_GRAFANA_QUERY_TIME_RANGE or '6h'
   s3_endpoint = process.env.HUBOT_GRAFANA_S3_ENDPOINT or 's3.amazonaws.com'
   s3_bucket = process.env.HUBOT_GRAFANA_S3_BUCKET
